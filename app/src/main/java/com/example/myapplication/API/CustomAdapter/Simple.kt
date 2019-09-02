@@ -4,9 +4,11 @@ import com.example.myapplication.API.ApiServices
 import com.example.myapplication.Model.RegisterModel
 import com.example.myapplication.Model.ResponseModel
 import com.google.gson.Gson
-import okhttp3.RequestBody
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
+
 import okhttp3.ResponseBody
-import okio.Buffer
 
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,6 +16,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
 import java.net.UnknownHostException
+
 
 class Simple<R>(private val call : Call<R>){
 
@@ -29,23 +32,37 @@ class Simple<R>(private val call : Call<R>){
 
     }
 
-    // Async Api Call
-    fun process(responseHandler: (R?, Throwable?) -> Unit):Subscription{
+    fun observerProccess() : Observable<R> {
+        val observer = PublishSubject.create<R>()
 
-
-        val subscription = Subscription()
-        val callback = object : Callback<R> {
-            override fun onFailure(call: Call<R>, t: Throwable) {
-                if (!subscription.isDisposed())
-                responseHandler(null,t)
-            }
-            override fun onResponse(call: Call<R>, response: Response<R>) {
-                if (!subscription.isDisposed())
-                handelResponse( response,responseHandler)
-            }
+         process { r, throwable ->
+            r?.let {   observer.onNext(it) } ?: throwable?.let { observer.onError(it) }
+            observer.onComplete()
         }
-        call.enqueue(callback)
-        return subscription
+
+        return observer.observeOn(Schedulers.io())
+    }
+    // Async Api Call
+    fun process(responseHandler: (R?, Throwable?) -> Unit){
+
+
+        //val subscription = Subscription()
+
+
+            val callback = object : Callback<R> {
+                override fun onFailure(call: Call<R>, t: Throwable) {
+                  //  if (!subscription.isDisposed())
+                        responseHandler(null,t)
+                }
+                override fun onResponse(call: Call<R>, response: Response<R>) {
+                   // if (!subscription.isDisposed())
+                        handelResponse( response,responseHandler)
+                }
+            }
+            call.enqueue(callback)
+
+
+       // return subscription
     }
 
     //Async Api call For Java Classes
@@ -81,7 +98,7 @@ class Simple<R>(private val call : Call<R>){
             handler(response.body(),null)
         }else{
             when(response.code()) {
-                400 -> getNewToken(handler, response)
+                400 ->  errorHandler(response, handler)// getNewToken(handler, response)
                 in 401..500 -> errorHandler(response, handler)
                 else -> handler(response.body(),UnknownHostException("Somthing is wrong try again"))
             }

@@ -1,5 +1,6 @@
 package com.example.myapplication.API;
 
+import com.example.myapplication.API.CustomAdapter.SimpleCallAdapterFactory;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -9,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-    static  public Retrofit retrofit;
+    static  private Retrofit retrofit;
     public static Retrofit getClient(String baseUrl){
         if (retrofit == null){
 

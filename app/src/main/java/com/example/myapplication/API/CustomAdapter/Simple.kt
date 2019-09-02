@@ -1,5 +1,6 @@
-package com.example.myapplication.API
+package com.example.myapplication.API.CustomAdapter
 
+import com.example.myapplication.API.ApiServices
 import com.example.myapplication.Model.RegisterModel
 import com.example.myapplication.Model.ResponseModel
 import com.google.gson.Gson
@@ -29,21 +30,26 @@ class Simple<R>(private val call : Call<R>){
     }
 
     // Async Api Call
-    fun process(responseHandler: (R?, Throwable?) -> Unit){
+    fun process(responseHandler: (R?, Throwable?) -> Unit):Subscription{
 
+
+        val subscription = Subscription()
         val callback = object : Callback<R> {
             override fun onFailure(call: Call<R>, t: Throwable) {
+                if (!subscription.isDisposed())
                 responseHandler(null,t)
             }
             override fun onResponse(call: Call<R>, response: Response<R>) {
+                if (!subscription.isDisposed())
                 handelResponse( response,responseHandler)
             }
         }
         call.enqueue(callback)
+        return subscription
     }
 
     //Async Api call For Java Classes
-    fun processJV(responseHandler:SimpleJavaInterface<R>){
+    fun processJV(responseHandler: SimpleJavaInterface<R>){
         val callback = object : Callback<R> {
             override fun onFailure(call: Call<R>, t: Throwable) {
               responseHandler.accept(null,t)
@@ -62,7 +68,6 @@ class Simple<R>(private val call : Call<R>){
             handler.accept(response.body(),null)
         }else{
             if(response.code() in 400..500)
-            //  reAuth()
                 handler.accept(null,HttpException(response))
             else
                 handler.accept(response.body(),null)
@@ -71,15 +76,14 @@ class Simple<R>(private val call : Call<R>){
 
     //Handel returned data from request
     private fun handelResponse(response : Response<R>,handler: (R?,Throwable?)->Unit){
-        println("${call.request().url().toString()} :::${response.body().toString()}")
+
         if(response.isSuccessful){
             handler(response.body(),null)
         }else{
-
             when(response.code()) {
                 400 -> getNewToken(handler, response)
                 in 401..500 -> errorHandler(response, handler)
-                else -> handler(response?.body(),UnknownHostException("Somthing is wrong try again"))
+                else -> handler(response.body(),UnknownHostException("Somthing is wrong try again"))
             }
         }
     }
@@ -95,7 +99,7 @@ class Simple<R>(private val call : Call<R>){
     }
 
     private  fun errorHandler(response : Response<R>,handler: (R?,Throwable?)->Unit){
-        var body = response?.errorBody()?.pareseErrorBody()
+        val body = response.errorBody()?.pareseErrorBody()
         if(body != null)
             handler(null, Exception(body.message ))
         else
@@ -104,7 +108,8 @@ class Simple<R>(private val call : Call<R>){
 
     private fun reAuthenticate(newToken : ((String?,Throwable?) -> Unit)){
 
-        ApiServices().refreshToken(RegisterModel("","","")).process { responseModel, throwable ->
+        ApiServices()
+            .refreshToken(RegisterModel("","","")).process { responseModel, throwable ->
             val token = responseModel?.data
 
             when{
@@ -118,22 +123,8 @@ class Simple<R>(private val call : Call<R>){
         val gson = Gson()
         val jsonString = this?.string()
         if(jsonString != null){
-            return gson.let { it.fromJson(jsonString,ResponseModel :: class.java) }
+            return gson.fromJson(jsonString,ResponseModel :: class.java)
         }else return null
-    }
-
-    fun RequestBody?.parse(): String? {
-        try {
-            val copy = this;
-            var buffer = Buffer();
-            if (copy != null)
-                copy.writeTo(buffer);
-            else
-                return "";
-            return buffer.readUtf8();
-        } catch (e: IOException) {
-            return "did not work";
-        }
     }
 
 

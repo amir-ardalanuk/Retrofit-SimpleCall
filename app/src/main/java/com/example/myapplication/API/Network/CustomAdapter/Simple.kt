@@ -1,4 +1,4 @@
-package com.example.myapplication.API.CustomAdapter
+package com.example.myapplication.API.Network.CustomAdapter
 
 import com.example.myapplication.API.ApiServices
 import com.example.myapplication.Model.RegisterModel
@@ -22,12 +22,13 @@ class Simple<R>(private val call : Call<R>){
 
 
     //sync Api Call
-    fun run(responseHandler :(R?,Throwable?)->Unit){
+    fun run():Response<R>{
         try{
             val response = call.execute()
-            handelResponse(response,responseHandler)
+            return response
+            //handelResponse(response,responseHandler)
         }catch (t: IOException){
-            responseHandler(null,t)
+            throw  t;
         }
 
     }

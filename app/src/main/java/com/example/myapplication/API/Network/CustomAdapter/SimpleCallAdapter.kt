@@ -1,4 +1,4 @@
-package com.example.myapplication.API.CustomAdapter
+package com.example.myapplication.API.Network.CustomAdapter
 
 import retrofit2.Call
 import retrofit2.CallAdapter

@@ -1,12 +1,9 @@
 package com.example.myapplication
 
-import android.content.Context
-import com.example.myapplication.API.ApiServices
+import com.example.myapplication.Activities.Main.MainViewModel
 import org.junit.Test
 import org.junit.Assert.*
 import org.junit.Before
-import com.example.myapplication.Model.RegisterModel
-import com.example.myapplication.Model.User
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify

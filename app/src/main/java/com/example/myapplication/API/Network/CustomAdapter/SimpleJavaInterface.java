@@ -1,4 +1,4 @@
-package com.example.myapplication.API.CustomAdapter;
+package com.example.myapplication.API.Network.CustomAdapter;
 
 public interface SimpleJavaInterface<R> {
     void accept(R respose , Throwable t);

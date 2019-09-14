@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.Activities.Main
 
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.example.myapplication.API.ApiServices
 import com.example.myapplication.Model.RegisterModel
 import com.example.myapplication.Model.User
+import com.example.myapplication.R
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,7 +18,6 @@ import io.reactivex.subjects.BehaviorSubject
 
 
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class MainViewModel(val view : MainView) {
@@ -80,7 +80,7 @@ private fun String.validEmail(): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
 }
 
-class MainActivity : AppCompatActivity(),MainViewModel.MainView {
+class MainActivity : AppCompatActivity(), MainViewModel.MainView {
     var bag = CompositeDisposable()
     override fun showEmail(message: String?) {
      //   textMessage.setText(message)

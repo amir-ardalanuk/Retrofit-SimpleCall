@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import com.example.myapplication.Activities.Main.MainViewModel
+import com.example.myapplication.activities.Main.MainViewModel
 import org.junit.Test
 import org.junit.Assert.*
 import org.junit.Before

@@ -1,10 +1,10 @@
-package com.example.myapplication.API;
+package com.example.myapplication.API.Route;
 
 
 
 import com.example.myapplication.API.Network.CustomAdapter.Simple;
-import com.example.myapplication.Model.RegisterModel;
-import com.example.myapplication.Model.UserResponse;
+import com.example.myapplication.model.RegisterModel;
+import com.example.myapplication.model.response.UserResponse;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 

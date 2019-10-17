@@ -1,10 +1,12 @@
 package com.example.myapplication.API.Network.CustomAdapter
 
 import com.example.myapplication.API.ApiServices
-import com.example.myapplication.Model.RegisterModel
-import com.example.myapplication.Model.ResponseModel
+import com.example.myapplication.model.RegisterModel
+import com.example.myapplication.model.response.ResponseModel
 import com.google.gson.Gson
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 
@@ -15,8 +17,10 @@ import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
+class NoConnection(message:String): Exception(message)
 
 class Simple<R>(private val call : Call<R>){
 
@@ -33,15 +37,35 @@ class Simple<R>(private val call : Call<R>){
 
     }
 
-    fun observerProccess() : Observable<R> {
-        val observer = PublishSubject.create<R>()
+    fun observerProccess() : Single<R> {
+        return Single.create<R> { emitter ->
+            process { r, throwable ->
+                throwable?.let {
+                    if(it is SocketTimeoutException){
+                        emitter.onError(NoConnection(it.localizedMessage))
+                    }else{
+                        emitter.onError(it)
+                    }
 
-         process { r, throwable ->
-            r?.let {   observer.onNext(it) } ?: throwable?.let { observer.onError(it) }
-            observer.onComplete()
+                } ?: r?.let {   emitter.onSuccess(it) }
+            }
         }
 
-        return observer.observeOn(Schedulers.io())
+//        val observer = Single.create<R>()
+//
+//         process { r, throwable ->
+//             throwable?.let {
+//                 if(it is SocketTimeoutException){
+//                     observer.onError(NoConnection(it.localizedMessage))
+//                 }else{
+//                     observer.onError(it)
+//                 }
+//
+//             } ?: r?.let {   observer.onNext(it) }
+//            observer.onComplete()
+//        }
+//
+//        return observer.observeOn(Schedulers.io())
     }
     // Async Api Call
     fun process(responseHandler: (R?, Throwable?) -> Unit){
@@ -94,14 +118,15 @@ class Simple<R>(private val call : Call<R>){
 
     //Handel returned data from request
     private fun handelResponse(response : Response<R>,handler: (R?,Throwable?)->Unit){
+        val data  = response.body() as? ResponseModel<*>
 
-        if(response.isSuccessful){
+        if(response.isSuccessful&& data?.isSuccess?:false){
             handler(response.body(),null)
         }else{
             when(response.code()) {
                 400 ->  errorHandler(response, handler)// getNewToken(handler, response)
                 in 401..500 -> errorHandler(response, handler)
-                else -> handler(response.body(),UnknownHostException("Somthing is wrong try again"))
+                else -> handler(response.body(),UnknownHostException(data?.message?:"Somthing is wrong try again"))
             }
         }
     }
@@ -141,7 +166,7 @@ class Simple<R>(private val call : Call<R>){
         val gson = Gson()
         val jsonString = this?.string()
         if(jsonString != null){
-            return gson.fromJson(jsonString,ResponseModel :: class.java)
+            return gson.fromJson(jsonString, ResponseModel:: class.java)
         }else return null
     }
 

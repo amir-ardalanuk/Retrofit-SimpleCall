@@ -1,4 +1,4 @@
-package com.example.myapplication.Activities.Main
+package com.example.myapplication.activities.Main
 
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -6,14 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import android.widget.Toast
 import com.example.myapplication.API.ApiServices
-import com.example.myapplication.Model.RegisterModel
-import com.example.myapplication.Model.User
+import com.example.myapplication.model.RegisterModel
+import com.example.myapplication.model.response.User
 import com.example.myapplication.R
+import com.example.myapplication.utils.addDispose
+import com.example.myapplication.utils.bindTo
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.textChanges
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 
 
@@ -41,16 +42,15 @@ class MainViewModel(val view : MainView) {
             val data = ApiServices().Register(register).observerProccess()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    val result = it?.data
+                .subscribe({ res ->
+                    val result = res?.data
                     when(result) {
                         is User -> {
                             view.showEmail(result.userProperties?.email)
                         }
                     }
-                },::errorHandeling, {
-                    print("Complete Register Api")
-                })
+                },::errorHandeling)
+
             compositeDisposable.add(data);
         }
 
@@ -136,13 +136,3 @@ class MainActivity : AppCompatActivity(), MainViewModel.MainView {
     }
 }
 
-fun Disposable.addDispose(compositeDisposable: CompositeDisposable){
-    compositeDisposable.add(this)
-}
-
-fun <T>  io.reactivex.Observable<T>.bindTo(observable: BehaviorSubject<T>): Disposable? {
-    return this.subscribe {
-        observable.onNext(it)
-    }
-
-}

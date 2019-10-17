@@ -1,16 +1,14 @@
-package com.example.myapplication.Model
+package com.example.myapplication.model.response
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import java.util.*
 
 open class ResponseModel<T> {
 
     val gson = Gson()
 
-    @SerializedName("isSuccess")
+    @SerializedName("success")
     @Expose
     var isSuccess: Boolean? = null
 

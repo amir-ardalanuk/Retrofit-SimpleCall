@@ -2,8 +2,8 @@ package com.example.myapplication.API.Network.CustomAdapter.Interceptor
 
 import com.example.myapplication.API.ApiServices
 import com.example.myapplication.API.Network.CustomAdapter.NetworkExeption.AuthorizeError
-import com.example.myapplication.Model.RegisterModel
-import com.example.myapplication.Model.UserResponse
+import com.example.myapplication.model.RegisterModel
+import com.example.myapplication.model.response.UserResponse
 import io.reactivex.exceptions.Exceptions
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -16,6 +16,7 @@ class OAuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         // try the request
+
         var response = chain.proceed(request)
         return if (!response.isSuccessful && response.code() == 401) {
             val tokenResponse : retrofit2.Response<UserResponse>?

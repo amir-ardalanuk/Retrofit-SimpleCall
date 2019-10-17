@@ -1,9 +1,6 @@
 package com.example.myapplication.API.Network.CustomAdapter
 
 import android.content.Context
-import android.net.NetworkInfo
-import android.content.Context.CONNECTIVITY_SERVICE
-import androidx.core.content.ContextCompat.getSystemService
 import android.net.ConnectivityManager
 
 class NetworkUtil {

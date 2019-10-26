@@ -1,6 +1,5 @@
 package com.example.myapplication.Abstracts
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -10,15 +9,10 @@ import io.reactivex.disposables.CompositeDisposable
 
 abstract class BaseFragment : Fragment() , FragmentInterface,ContractView {
 
+
     var unbinder: Unbinder? = null
 
     abstract val viewModel  : BaseViewModel?
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//        viewModel?.bag = getBag()
-//        this.viewModel?.fragmentInterface = this
-    }
 
     abstract fun getBag():CompositeDisposable?
 
@@ -32,7 +26,10 @@ abstract class BaseFragment : Fragment() , FragmentInterface,ContractView {
         Toast.makeText(this.context , string , Toast.LENGTH_LONG).show()
     }
 
-    override fun getContext(): Context {
-        return context
+
+    fun popBackStack() {
+        if (fragmentManager != null && fragmentManager!!.backStackEntryCount > 0) {
+            fragmentManager!!.popBackStack()
+        }
     }
 }

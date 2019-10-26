@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.example.myapplication.API.Database.UserRepository
 import com.example.myapplication.Abstracts.BaseFragment
 
 import com.example.myapplication.R
@@ -55,7 +56,10 @@ class Authentication : BaseFragment() {
 
         val view = inflater.inflate(R.layout.fragment_authentication, container, false)
         ButterKnife.bind(this,view);
-        viewModel = AuthenticationViewModel()
+        this.context?.let {
+            viewModel = AuthenticationViewModelFactory(UserRepository(it)).create(AuthenticationViewModel::class.java)
+        }
+
         return view
     }
 

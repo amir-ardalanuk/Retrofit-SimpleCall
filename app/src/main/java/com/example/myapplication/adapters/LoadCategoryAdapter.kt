@@ -10,11 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.example.myapplication.R
+import com.example.myapplication.model.response.EnumsName
+import com.example.myapplication.utils.UIBaseComponent.LightTextView
 
-class LoadCategoryAdapter : ListAdapter<String,LoadCategoryAdapter.ViewHolder>(LoadCategoryDiffCallback()) {
+class LoadCategoryAdapter : ListAdapter<EnumsName,LoadCategoryAdapter.ViewHolder>(LoadCategoryDiffCallback()) {
 
-    private var itemList : MutableList<String>? = null;
-    var list : MutableList<String>?
+    private var itemList : MutableList<EnumsName>? = null;
+    var list : MutableList<EnumsName>?
     get() {return this.itemList}
     set(value) {
         itemList = value
@@ -31,12 +33,12 @@ class LoadCategoryAdapter : ListAdapter<String,LoadCategoryAdapter.ViewHolder>(L
         val context = holder.itemView.context
         val data = this.itemList?.get(position)
 
-        holder.tvTitle.text = data
+        holder.tvTitle.text = data?.name ?: "name"
     }
 
     class ViewHolder : RecyclerView.ViewHolder {
 
-        @BindView(R.id.row_load_category_title) lateinit var tvTitle:TextView
+        @BindView(R.id.row_load_category_title) lateinit var tvTitle:LightTextView
 
         constructor(itemView : View) : super(itemView) {
             ButterKnife.bind(this,itemView)
@@ -45,19 +47,19 @@ class LoadCategoryAdapter : ListAdapter<String,LoadCategoryAdapter.ViewHolder>(L
 
 
 }
-private class LoadCategoryDiffCallback : DiffUtil.ItemCallback<String>() {
+private class LoadCategoryDiffCallback : DiffUtil.ItemCallback<EnumsName>() {
 
     override fun areItemsTheSame(
-        oldItem: String,
-        newItem: String
+        oldItem: EnumsName,
+        newItem: EnumsName
     ): Boolean {
-        return oldItem.equals(newItem)
+        return oldItem.value != newItem.value
     }
 
     override fun areContentsTheSame(
-        oldItem: String,
-        newItem: String
+        oldItem: EnumsName,
+        newItem: EnumsName
     ): Boolean {
-        return oldItem.equals(newItem)
+        return oldItem.value != newItem.value
     }
 }

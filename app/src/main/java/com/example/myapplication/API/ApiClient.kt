@@ -15,21 +15,19 @@ import javax.net.ssl.*
 
 object ApiClient {
 
-    private var retrofit: Retrofit? = null
+   // private var retrofit: Retrofit? = null
     fun getClient(context : Context? = null , baseUrl: String = URL.baseurl): Retrofit {
-        if (retrofit == null) {
+       // if (retrofit == null) {
             val client = getUnsafeOkHttpClient()
             context?.let { client.addInterceptor(ConnectivityInterceptor(it)) }
             context?.let { client.addInterceptor(OAuthInterceptor()) }
             client.addInterceptor(CertificateInterceptor())
             val gson = GsonBuilder().setLenient().create()
-            retrofit = Retrofit.Builder().baseUrl(baseUrl)
+            return  Retrofit.Builder().baseUrl(baseUrl)
                 .client(client.build())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(SimpleCallAdapterFactory.create())
                 .build()
-        }
-        return retrofit!!
     }
 
 }

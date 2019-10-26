@@ -1,5 +1,8 @@
 package com.example.myapplication.fragments.account
 
+import android.os.AsyncTask
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.API.Database.UserRepository
 import com.example.myapplication.Abstracts.BaseViewModel
 import com.example.myapplication.MasterApplication
@@ -11,8 +14,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 
 import io.reactivex.subjects.BehaviorSubject
 
-
-class AuthenticationViewModel() : BaseViewModel() , AuthenticateInterface {
+class AuthenticationViewModelFactory(val repo :UserRepository) : ViewModelProvider.NewInstanceFactory(){
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return AuthenticationViewModel(repo) as T
+    }
+}
+class AuthenticationViewModel internal constructor(val repo: UserRepository) : BaseViewModel() , AuthenticateInterface {
 
 
     enum class AuthState {
@@ -111,10 +118,15 @@ class AuthenticationViewModel() : BaseViewModel() , AuthenticateInterface {
     }
 
     override fun loginStep2Succssed() {
-        apiInerface.user?.let {
-            UserRepository(MasterApplication.getInstance()!!.baseContext).insertTask(it)
-            stateSubject.onNext(Done)
+        AsyncTask.execute {
+            kotlin.run {
+                apiInerface.user?.let {
+                    repo.insertTask(it)
+                    stateSubject.onNext(Done)
+                }
+            }
         }
+
 
     }
 

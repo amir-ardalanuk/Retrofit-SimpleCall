@@ -12,7 +12,7 @@ interface RetryRequest {
     fun requestAgain()
 }
 interface ContractView {
-    fun getContext() : Context
+//    fun getContext() : Context
 }
 enum class BaseViewModelState {
     startLoading,stopLoading,startLockLoading,errorMessage,noInternet;
@@ -36,11 +36,11 @@ abstract class BaseViewModel : ViewModel(),BaseModelApi {
     override fun  errorHandeling(throwable: Throwable ,request: RetryRequest) {
         if(throwable is NoConnectivityException || throwable is NoConnection){
             requestRetry.add(request)
-            baseState.value = BaseViewModelState.noInternet
+            baseState.postValue(BaseViewModelState.noInternet)
         }else{
             val state = BaseViewModelState.errorMessage
             state.message = throwable.localizedMessage
-            baseState.value = state
+            baseState.postValue(state)
         }
 
     }

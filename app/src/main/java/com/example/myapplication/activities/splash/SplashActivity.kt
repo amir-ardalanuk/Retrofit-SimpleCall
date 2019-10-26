@@ -60,12 +60,15 @@ class SplashActivity : BaseActivity<SplashViewModel>() {
         val intent = Intent(this, HomeActivity::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+        _bag.dispose()
+        finish()
     }
 
     private fun gotoLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+        finish()
     }
 
 }

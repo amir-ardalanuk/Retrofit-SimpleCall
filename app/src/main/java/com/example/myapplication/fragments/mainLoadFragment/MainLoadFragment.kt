@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.example.myapplication.API.DAL.PrefrencesStandard
+import com.example.myapplication.API.DAL.PrefrencesStandardKey
 import com.example.myapplication.Abstracts.BaseFragment
 
 import com.example.myapplication.R
@@ -40,8 +42,10 @@ class MainLoadFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.main_load_fragment, container, false)
-
-        viewModel = MainLoadViewModelFactory(UserRepository(context)).create(MainLoadViewModel::class.java)
+        PrefrencesStandardKey.cartable
+        this.context?.let {
+            viewModel = MainLoadViewModelFactory(UserRepository(it), PrefrencesStandard.standard).create(MainLoadViewModel::class.java)
+        }
 
         ButterKnife.bind(this,view)
         return  view
@@ -55,27 +59,16 @@ class MainLoadFragment : BaseFragment() {
     }
 
     private fun subscribeUI() {
-        viewModel.loadList.observe(viewLifecycleOwner, Observer {
-            adapter.submitList(it.toList())
+        viewModel.headerItem.observe(viewLifecycleOwner,Observer{
+            adapter.submitList(it)
         })
+        adapter.list = viewModel.headerItem.value
     }
 
     fun setupAdapters(){
-        adapter.list = mutableListOf("amir","ebi","hossein","mehran")
         listOfCategory.adapter = adapter
-        listOfCategory.layoutManager = StaggeredGridLayoutManager(4,LinearLayoutManager.HORIZONTAL
-            )
-
-
-
+        listOfCategory.layoutManager = StaggeredGridLayoutManager(1,LinearLayoutManager.HORIZONTAL)
     }
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        // TODO: Use the ViewModel
-    }
-
-
 
 
 }

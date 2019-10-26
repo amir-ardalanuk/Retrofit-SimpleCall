@@ -3,6 +3,7 @@ package com.example.myapplication.Abstracts
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -14,7 +15,7 @@ abstract class BaseActivity<T:BaseViewModel> : AppCompatActivity(),ActivityInter
      override val activity: Activity
          get() = this
 
-
+    private var shouldExit: Boolean = false
     abstract var containerViewId : Int
     abstract var viewModel : T?
 
@@ -32,9 +33,7 @@ abstract class BaseActivity<T:BaseViewModel> : AppCompatActivity(),ActivityInter
             }
         }
     }
-    override fun getContext(): Context {
-        return this
-    }
+
 
      override fun showLoadingDialog() {
          TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -57,7 +56,7 @@ abstract class BaseActivity<T:BaseViewModel> : AppCompatActivity(),ActivityInter
      }
 
      override fun toast(txt: Any, length: Int) {
-         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+         Toast.makeText(this,txt.toString(),length).show()
      }
 
      override fun showLoadingDialog(s: Any, b: Boolean?) {
@@ -111,6 +110,38 @@ abstract class BaseActivity<T:BaseViewModel> : AppCompatActivity(),ActivityInter
             e.printStackTrace()
         }
 
+    }
+
+    protected fun getBackStackLimit(): Int {
+        return 1
+    }
+
+
+    fun handleBackButton() {
+        if (supportFragmentManager.backStackEntryCount > getBackStackLimit()) {
+
+            supportFragmentManager.popBackStack()
+        } else {
+            checkShouldExit()
+        }
+    }
+
+    protected fun checkShouldExit() {
+        if (shouldExit) {
+            if (supportFragmentManager.backStackEntryCount == getBackStackLimit()) {
+                finish()
+            } else {
+                super.onBackPressed()
+            }
+        } else {
+            shouldExit = true
+            toast("برای خروج مجدد دکمه بازگشت را فشار دهید", Toast.LENGTH_SHORT)
+            Handler().postDelayed({ shouldExit = false }, 2000)
+        }
+    }
+
+    override fun onBackPressed() {
+        handleBackButton()
     }
 
  }

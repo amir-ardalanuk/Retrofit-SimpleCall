@@ -27,4 +27,7 @@ class HomeActivity() : BaseActivity<BaseViewModel>() {
 
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
 }

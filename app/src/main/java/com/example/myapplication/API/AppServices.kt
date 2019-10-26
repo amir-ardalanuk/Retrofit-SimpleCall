@@ -4,12 +4,13 @@ import com.example.myapplication.API.Route.AccountServicesInterface
 import com.example.myapplication.API.Route.ApiService
 import com.example.myapplication.API.Route.GeneralService
 import com.example.myapplication.API.Route.OrderServices
+import com.example.myapplication.BuildConfig
 import retrofit2.create
 
 enum class URL {
     home , login;
     companion object BASE{
-        val baseurl = "https://customerapi.patoughi.com/"
+        val baseurl = "https://gtarabar-api.gig.services/" //"https://customerapi.patoughi.com/"
     }
 }
 fun ApiServices(): ApiService {
@@ -24,12 +25,12 @@ fun AccountServices(): AccountServicesInterface {
 }
 
 fun BrokerOrderServices(): OrderServices{
-    val accountEndPoint = "/C/BrokerOrder/"
+    val accountEndPoint = "C/BrokerOrder/"
     return  ApiClient.getClient(null,URL.baseurl + accountEndPoint).create()
 }
 
 fun GeneralServices(): GeneralService{
-    val midPoint = "/General/"
+    val midPoint = "General/"
     return  ApiClient.getClient(null,URL.baseurl + midPoint).create()
 }
 

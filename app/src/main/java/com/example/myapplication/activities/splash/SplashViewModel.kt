@@ -1,8 +1,11 @@
 package com.example.myapplication.activities.splash
 
+import android.os.AsyncTask
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.example.myapplication.API.DAL.PrefrencesStandard
+import com.example.myapplication.API.DAL.PrefrencesStandardKey
 import com.example.myapplication.API.Database.UserRepository
 import com.example.myapplication.API.GeneralServices
 import com.example.myapplication.Abstracts.BaseViewModel
@@ -14,6 +17,7 @@ import com.example.myapplication.model.request.toRequestBody
 import com.example.myapplication.model.response.AppSetting
 import com.example.myapplication.model.response.EnumsName
 import com.example.myapplication.utils.addDispose
+import com.example.myapplication.utils.convertToString
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -35,6 +39,10 @@ class SplashViewModel(val repository: UserRepository) : BaseViewModel() {
         Home, Login
     }
 
+    var cartableItems: BehaviorSubject<ArrayList<EnumsName>?> = BehaviorSubject.createDefault(ArrayList())
+    var appSetting: BehaviorSubject<AppSetting?> = BehaviorSubject.create()
+    var onChangeState : PublishSubject<StateView> = PublishSubject.create()
+    var routed = false
 
     init{
         this.bag = CompositeDisposable()
@@ -42,23 +50,23 @@ class SplashViewModel(val repository: UserRepository) : BaseViewModel() {
         setObserver()
     }
 
-    var cartableItems: BehaviorSubject<ArrayList<EnumsName>?> = BehaviorSubject.create()
-    var appSetting: BehaviorSubject<AppSetting?> = BehaviorSubject.create()
-    var onChangeState : PublishSubject<StateView> = PublishSubject.create()
+
 
     fun setObserver() {
-//        Observable.combineLatest<ArrayList<EnumsName>?, AppSetting?, Boolean>(
-//            cartableItems,
-//            appSetting,
-//            BiFunction { cartable, appset ->
-//                return@BiFunction arrayOf(
-//                    !cartable.isNullOrEmpty(),
-//                    (appSetting.value != null)
-//                ).all { it == true }
-//                //return@BiFunction cartable.isNullOrEmpty() && appSetting.value != null
-//            }).filter { it }.subscribe {
-//            this.routing()
-//        }.addDispose(bag)
+        Observable.combineLatest<Boolean?,Boolean?, Boolean>(cartableItems.map { !it.isNullOrEmpty() }, appSetting.map { it.currencyLabelName != null},
+            BiFunction { cartable, appset ->
+                println(cartable)
+                println(appset)
+                return@BiFunction arrayOf(
+                    cartable,
+                    appset ,
+                    routed == false
+                ).all { it == true }
+            }).filter { it }.subscribe {
+            this.routed = true
+            this.routing()
+
+        }.addDispose(bag)
 
     }
 
@@ -73,10 +81,15 @@ class SplashViewModel(val repository: UserRepository) : BaseViewModel() {
         GeneralServices().getEnums(request)
             .observerProccess()
             .subscribeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 this.loading(false)
                 it.data?.let {
-                    if (it.size > 0) cartableItems.onNext(it)
+                    if (it.size > 0){
+                        PrefrencesStandard.standard.saveString(it.convertToString() ?:"",PrefrencesStandardKey.cartable);
+                        cartableItems.onNext(it)
+                    }
+
                 }
             }, {
                 this.loading(false)
@@ -95,6 +108,7 @@ class SplashViewModel(val repository: UserRepository) : BaseViewModel() {
         GeneralServices().getSetAppSetting(req.appCode,req.deviceTypeCode)
             .observerProccess()
             .subscribeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 this.loading(false)
                 it.data?.let {
@@ -111,8 +125,14 @@ class SplashViewModel(val repository: UserRepository) : BaseViewModel() {
     }
 
     fun routing(){
-        repository.user?.let {
-            onChangeState.onNext(StateView.Home)
-        } ?: onChangeState.onNext(StateView.Login)
+        AsyncTask.execute {
+            kotlin.run {
+                repository.user?.let {
+                    onChangeState.onNext(StateView.Home)
+                } ?: onChangeState.onNext(StateView.Login)
+            }
+
+        }
+
     }
 }

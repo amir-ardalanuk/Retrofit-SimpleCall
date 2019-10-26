@@ -3,9 +3,11 @@ package com.example.myapplication.API.Database;
 import androidx.room.*;
 import com.example.myapplication.model.account.UserAccount;
 
+import static androidx.room.OnConflictStrategy.REPLACE;
+
 @Dao
 public interface UserDao {
-    @Insert
+    @Insert(onConflict = REPLACE)
     Long insert(UserAccount userAccounUt);
 
 
@@ -13,7 +15,7 @@ public interface UserDao {
     UserAccount getUser();
 
 
-    @Update
+    @Update(onConflict = REPLACE)
     void update(UserAccount user);
 
 

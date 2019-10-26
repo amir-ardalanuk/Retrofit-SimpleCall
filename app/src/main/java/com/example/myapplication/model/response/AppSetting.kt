@@ -24,7 +24,7 @@ data class AppSetting(
     var currencyLabelCode: Int,
     @SerializedName("currencyLabelName")
     @Nullable
-    var currencyLabelName: String,
+    var currencyLabelName: String?,
     @SerializedName("customerLoadingTypeId")
     @Nullable
     var customerLoadingTypeId: Int,
